@@ -1,0 +1,91 @@
+1. Casos com resolução significativamente mais lenta
+Resumo das durações totais por caso:
+Case ID	Tempo Total (s)	Tempo Total (h)
+101	8.100	2,25
+102	90.600	25,17
+103	4.800	1,33
+104	87.600	24,33
+105	174.900	48,58
+
+Média geral: 72.180 s (20,05 h)
+
+Desvios relevantes:
+
+105: +102.720 s
+
+102 e 104 também estão acima da média, mas menos extremos.
+
+2. Causas-raiz dos atrasos
+?? A) Escalonamentos para o Nível 2
+Presentes nos casos 102 e 105.
+
+O tempo médio entre "Escalate to Level-2" ? "Investigate Issue" é 54.900 s (~15 h).
+
+No caso 105, essa transição demorou 100.800 s (~28 h) ? o maior gargalo identificado.
+
+O caso 105 também tem um fluxo atípico: investiga antes do escalonamento (o único com esse comportamento), o que sugere retrabalho ou má triagem inicial.
+
+?? B) Longos tempos entre atividades críticas
+Caso 104:
+
+Entre "Assign to Level-1" ? "Investigate Issue" = 12.600 s (~3,5 h).
+
+Média esperada = 5.100 s, indicando atraso de +7.500 s.
+
+Caso 102:
+
+"Escalate" ? "Investigate" = 9.000 s (abaixo da média, mas ainda significativo).
+
+Mas "Investigate" ? "Resolve" = 68.400 s (~19 h) ? muito acima da média de 42.120 s.
+
+?? C) Problemas no início do processo
+Caso 104 teve:
+
+"Receive" ? "Triage" = 2.400 s (~40 min) vs média de 1.080 s (~18 min).
+
+Esse atraso inicial pode impactar negativamente todo o lead time.
+
+3. Como esses fatores aumentam o ciclo do processo
+?? Escalonamentos prolongam o fluxo
+Escalonar para Nível 2 é um caminho mais custoso e demorado. A espera entre escalonamento e retomada da investigação é grande, refletindo:
+
+Falta de capacidade no time de Nível 2.
+
+Ausência de SLAs internos rigorosos.
+
+Provável operação em horário limitado (ex: horário comercial).
+
+?? Gaps entre atividades = tempos ociosos
+A diferença entre atividades (por ex., entre triagem e investigação) é composta por tempos "mortos", não por esforço produtivo. Esses tempos podem ser otimizados com:
+
+Monitoramento proativo.
+
+Alocação automática ou notificação de agentes.
+
+?? Fluxos inconsistentes
+O caso 105 inicia uma investigação antes de escalar — comportamento raro. Isso indica:
+
+Falta de padronização.
+
+Problemas de decisão em tempo real (ex: escalonamento tardio ou errado).
+
+Possível retrabalho.
+
+4. Recomendações para mitigar os gargalos
+Ação	Justificativa
+? Estabelecer SLAs internos para escalonamentos	Garantir que "Escalate ? Investigate" ocorra em até 4h úteis.
+? Priorização automática de casos críticos	Baseada em complexidade prevista, palavras-chave, cliente ou urgência.
+? Monitoramento dos tempos entre atividades	Criar alertas de inatividade (ex: > 2h entre “Assign” e “Investigate”).
+? Treinamento cruzado de agentes L1 para investigação	Reduz dependência do Nível 2 e melhora a capacidade de resposta.
+? Análise contínua de fluxos fora do padrão	Casos como o 105 indicam necessidade de revisão de procedimentos.
+? Automatizar triagem simples	Reduz tempo de "Receive ? Triage", que ainda apresenta variações.
+? Revisar cobertura do Nível 2 fora do horário comercial	Especialmente útil para evitar acúmulo de tarefas entre dias.
+
+5. Considerações sobre a qualidade do processo
+Precise Footprint-Based: 0.8889 ? boa, mas indica pequenas variações nos caminhos.
+
+Fitness de alinhamento (100%) ? todos os casos encaixam-se no modelo esperado.
+
+Overlap constante (5 casos paralelos) ? carga de trabalho distribuída, não há sobreposição excessiva.
+
+Conclusão: O processo é relativamente estável, mas a espera por escalonamento e retomada da investigação é o principal gargalo. Resolver isso pode reduzir em até 60% o tempo dos casos outliers.
